@@ -1,8 +1,10 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# React + Next.js Email Messaging System Demo: "Compose New Email" Page with TinyMCE
+
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app). It uses React, and is responsive to Dark Mode/Light Mode.
 
 ## Getting Started
 
-First, run the development server:
+Run the development server:
 
 ```bash
 npm run dev
@@ -16,21 +18,14 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Replacing the textarea with TinyMCE
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Follow the how-to to add a robust, Dark Mode-aware WYSIWYG editor to this React + Next.js Email Messaging System app wireframe.
 
-## Learn More
+## Learn More about TinyMCE
 
-To learn more about Next.js, take a look at the following resources:
+To learn more about TinyMCE, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [TinyMCE Documentation](https://www.tiny.cloud/docs/tinymce/latest/) - learn about TinyMCE features and API.
+- [TinyMCE Developer Center](https://www.tiny.cloud/developer-center/) - find developer-specific resources about TinyMCE, like code samples, videos, and how-tos.
+- [TinyMCE Blog](https://www.tiny.cloud/blog/) - explore the TinyMCE blog to find more walkthroughs and editor comparisons.
