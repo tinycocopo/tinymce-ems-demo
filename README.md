@@ -2,6 +2,8 @@
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app). It uses React, and is responsive to Dark Mode/Light Mode.
 
+![An image of a basic email messaging wireframe in a React + Next.js project](/TinyMCE-Email-Demo.png)
+
 ## Getting Started
 
 Run the development server:
