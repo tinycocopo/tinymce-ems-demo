@@ -16,6 +16,7 @@ type SendEmailArgs = {
   message: string;
   cc?: string;
   from?: string;
+  html?: string;
 };
 
 const normalizeList = (value?: string) =>
@@ -30,6 +31,7 @@ export async function sendEmail({
   message,
   cc,
   from,
+  html,
 }: SendEmailArgs) {
   const toList = normalizeList(to);
   if (!toList?.length) {
@@ -38,11 +40,14 @@ export async function sendEmail({
 
   const ccList = normalizeList(cc);
 
-  const html = message
-    .split("\n")
-    .map((line) => line.trim())
-    .map((line) => (line.length ? `<p>${line}</p>` : "<br/>"))
-    .join("");
+  const normalizedHtml =
+    html && html.trim().length
+      ? html
+      : message
+          .split("\n")
+          .map((line) => line.trim())
+          .map((line) => (line.length ? `<p>${line}</p>` : "<br/>"))
+          .join("");
 
   return resend.emails.send({
     from: from ?? resendFromAddress,
@@ -50,6 +55,6 @@ export async function sendEmail({
     cc: ccList,
     subject,
     text: message,
-    html,
+    html: normalizedHtml,
   });
 }

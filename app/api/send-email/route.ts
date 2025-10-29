@@ -6,6 +6,7 @@ type EmailRequestBody = {
   cc?: string;
   subject?: string;
   message?: string;
+  html?: string;
 };
 
 export async function POST(request: Request) {
@@ -20,7 +21,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { to, cc, subject, message } = payload;
+  const { to, cc, subject, message, html } = payload;
 
   if (!to) {
     return NextResponse.json(
@@ -29,7 +30,10 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!message) {
+  const trimmedMessage = (message ?? "").trim();
+  const trimmedHtml = (html ?? "").trim();
+
+  if (!trimmedMessage && !trimmedHtml) {
     return NextResponse.json(
       { error: "Message body cannot be empty." },
       { status: 400 }
@@ -41,7 +45,10 @@ export async function POST(request: Request) {
       to,
       cc,
       subject: subject ?? "(no subject)",
-      message,
+      message:
+        trimmedMessage ||
+        trimmedHtml.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim(),
+      html: trimmedHtml || undefined,
     });
 
     if (result.error) {
