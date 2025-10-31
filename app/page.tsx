@@ -1,23 +1,27 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+
+const EditorClient = dynamic(() => import("./components/editorclient"), {
+  ssr: false,
+});
 
 export default function Page() {
   const [sending, setSending] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [messageHtml, setMessageHtml] = useState("");
+  const [editorResetKey, setEditorResetKey] = useState(0);
 
-  const [folders, setFolders] = useState<string[]>([
+  const foldersFallback = [
     "Inbox",
-    "Starred",
-    "Snoozed",
     "Sent",
     "Drafts",
-    "All Mail",
     "Spam",
     "Trash",
-    "Archive",
-  ]);
+  ];
+  const [folders, setFolders] = useState<string[]>(foldersFallback);
 
   useEffect(() => {
     let cancelled = false;
@@ -46,6 +50,9 @@ export default function Page() {
     };
   }, []);
 
+  const toPlainText = (html: string) =>
+    html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+
   const handleSendEmail = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -59,7 +66,8 @@ export default function Page() {
     const to = (formData.get("to") as string | null)?.trim() ?? "";
     const ccRaw = (formData.get("cc") as string | null)?.trim() ?? "";
     const subject = (formData.get("subject") as string | null)?.trim() ?? "";
-    const message = (formData.get("message") as string | null)?.trim() ?? "";
+    const html = messageHtml.trim();
+    const plainText = toPlainText(html);
 
     if (!to) {
       setErrorMessage("Please add at least one recipient.");
@@ -67,7 +75,7 @@ export default function Page() {
       return;
     }
 
-    if (!message) {
+    if (!plainText && !html) {
       setErrorMessage("Message body cannot be empty.");
       setSending(false);
       return;
@@ -81,7 +89,8 @@ export default function Page() {
           to,
           cc: ccRaw.length ? ccRaw : undefined,
           subject,
-          message,
+          message: plainText || html,
+          html: html || undefined,
         }),
       });
 
@@ -96,6 +105,8 @@ export default function Page() {
       } else {
         setSuccessMessage("Email sent successfully.");
         form.reset();
+        setMessageHtml("");
+        setEditorResetKey((key) => key + 1);
       }
     } catch (error) {
       console.error(error);
@@ -109,7 +120,7 @@ export default function Page() {
     <div className="flex min-h-screen font-[Helvetica] text-gray-900 bg-white dark:text-white dark:bg-black">
       {/* Sidebar */}
       <aside className="w-56 border-r border-gray-200 dark:border-gray-700 p-4">
-        <h1 className="text-xl font-bold mb-6">Inbox</h1>
+        <h1 className="text-xl font-bold mb-6">INBOX</h1>
         <button className="bg-gray-200 dark:bg-gray-800 text-sm font-semibold py-2 px-4 rounded mb-4">
           COMPOSE
         </button>
@@ -213,16 +224,25 @@ export default function Page() {
                 </div>
               </div>
 
-              <div className="px-4 pb-4">
-                <textarea
-                  id="compose-message"
-                  name="message"
-                  aria-label="Message body"
-                  className="w-full h-[420px] border border-gray-200 dark:border-gray-700 rounded p-3 text-sm outline-none focus:border-gray-400 dark:focus:border-gray-500 resize-none bg-transparent"
-                  placeholder="Write your message here..."
-                  required
-                />
-              </div>
+                <div className="px-4 pb-4">
+                  <input
+                    type="hidden"
+                    name="message"
+                    value={messageHtml}
+                    required
+                    aria-hidden="true"
+                  />
+                  <label className="sr-only" htmlFor="compose-message">
+                    Message body
+                  </label>
+                  <div id="compose-message">
+                    <EditorClient
+                      key={editorResetKey}
+                      initialValue="Write your message here. "
+                      onChange={(content) => setMessageHtml(content)}
+                    />
+                  </div>
+                </div>
 
               <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-700 flex items-center gap-2">
                 <button
@@ -238,6 +258,8 @@ export default function Page() {
                   onClick={() => {
                     setSuccessMessage(null);
                     setErrorMessage(null);
+                    setMessageHtml("");
+                    setEditorResetKey((key) => key + 1);
                   }}
                   disabled={sending}
                 >
