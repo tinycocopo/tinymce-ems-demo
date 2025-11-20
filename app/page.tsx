@@ -1,6 +1,11 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+
+const EditorClient = dynamic(() => import("./components/editorclient"), {
+  ssr: false,
+});
 
 export default function Page() {
   const [sending, setSending] = useState(false);
@@ -46,6 +51,8 @@ export default function Page() {
     };
   }, []);
 
+  const [messageHtml, setMessageHtml] = useState("");
+
   const handleSendEmail = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -67,7 +74,7 @@ export default function Page() {
       return;
     }
 
-    if (!message) {
+    if (!messageHtml.trim()) {
       setErrorMessage("Message body cannot be empty.");
       setSending(false);
       return;
@@ -75,15 +82,19 @@ export default function Page() {
 
     try {
       const response = await fetch("/api/send-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          to,
-          cc: ccRaw.length ? ccRaw : undefined,
-          subject,
-          message,
-        }),
-      });
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        to,
+        cc: ccRaw.length ? ccRaw : undefined,
+        subject,
+        html: messageHtml,
+        message: messageHtml
+          .replace(/<[^>]*>/g, " ")
+          .replace(/\s+/g, " ")
+          .trim(),
+      }),
+    });
 
       const payload = await response.json();
 
@@ -213,16 +224,25 @@ export default function Page() {
                 </div>
               </div>
 
-              <div className="px-4 pb-4">
-                <textarea
-                  id="compose-message"
+             <div className="px-4 pb-4">
+                <input
+                  type="hidden"
                   name="message"
-                  aria-label="Message body"
-                  className="w-full h-[420px] border border-gray-200 dark:border-gray-700 rounded p-3 text-sm outline-none focus:border-gray-400 dark:focus:border-gray-500 resize-none bg-transparent"
-                  placeholder="Write your message here..."
+                  value={messageHtml}
                   required
+                  aria-hidden="true"
                 />
+                <label className="sr-only" htmlFor="compose-message">
+                  Message body
+                </label>
+                <div id="compose-message">
+                  <EditorClient
+                    initialValue="Write your message here..."
+                    onChange={(content) => setMessageHtml(content)}
+                  />
+                </div>
               </div>
+
 
               <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-700 flex items-center gap-2">
                 <button
